@@ -42,8 +42,31 @@ const projects = [
 
 const stack = ["Vue", "TypeScript", "Three.js", "Babylon.js", "Python", "Node.js", "C#", "Git", "AI Tools"];
 
+const latestUpdates = [
+  { date: "2026.07", title: "作品集改版", detail: "加入横向浏览、键盘导航与移动端适配。" },
+  { date: "2026.06", title: "AI × 3D", detail: "继续整理模型工具与工程自动化实验。" },
+  { date: "持续更新", title: "开源项目", detail: "新想法和进度会优先发布到 GitHub。" },
+];
+
+const friendLinks = [
+  { label: "LOLIHOST", detail: "个人主页与技术随笔", href: "https://www.lolihost.com/" },
+  { label: "FLASH / GITHUB", detail: "代码、实验与开源项目", href: "https://github.com/flash555588" },
+];
+
+const otherLinks = [
+  { label: "全部仓库", detail: "浏览公开项目", href: "https://github.com/flash555588?tab=repositories" },
+  { label: "交换友链", detail: "通过 GitHub 联系我", href: "https://github.com/flash555588/flash-portfolio/issues" },
+];
+
 function externalLink(label: string, href: string, className?: string) {
   return h("a", { href, class: className, target: "_blank", rel: "noreferrer" }, [label, h("span", { "aria-hidden": "true" }, " ↗")]);
+}
+
+function compactLink(label: string, detail: string, href: string) {
+  return h("a", { href, class: "compact-link", target: "_blank", rel: "noreferrer" }, [
+    h("span", [h("b", label), h("small", detail)]),
+    h("i", { "aria-hidden": "true" }, "↗"),
+  ]);
 }
 
 const PortfolioApp = defineComponent({
@@ -353,16 +376,28 @@ const PortfolioApp = defineComponent({
           h("h2", ["有想法？", h("br"), h("span", "一起做出来。")]),
           h("div", { class: "contact-actions" }, [externalLink("GITHUB / FLASH555588", "https://github.com/flash555588", "button button-primary"), externalLink("WWW.LOLIHOST.COM", "https://www.lolihost.com/", "button button-ghost")]),
         ]),
-        h("section", { id: "friends", class: ["panel", "friends", "section-pad", { "is-active": activePanel.value === 4 }] }, [
-          h("p", { class: "section-index" }, "04 / FRIEND LINKS"),
+        h("section", { id: "more", class: ["panel", "friends", "section-pad", { "is-active": activePanel.value === 4 }] }, [
+          h("p", { class: "section-index" }, "04 / LINKS & NOTES"),
           h("div", { class: "friends-heading" }, [
-            h("h2", "友链。"),
-            h("p", "保持连接，交换有趣的站点。"),
+            h("h2", "友链、更新与其他。"),
+            h("p", "静态整理近期变化、常用入口和保持连接的方式。"),
           ]),
-          h("div", { class: "friend-grid" }, [
-            externalLink("LOLIHOST", "https://www.lolihost.com/", "friend-link"),
-            externalLink("FLASH / GITHUB", "https://github.com/flash555588", "friend-link"),
-            externalLink("交换友链", "https://github.com/flash555588", "friend-link friend-exchange"),
+          h("div", { class: "more-grid" }, [
+            h("article", { class: "more-column updates-column" }, [
+              h("h3", [h("span", "01"), "近期更新"]),
+              h("div", { class: "updates-list" }, latestUpdates.map((update) => h("div", { class: "update-item", key: update.title }, [
+                h("time", update.date),
+                h("span", [h("b", update.title), h("small", update.detail)]),
+              ]))),
+            ]),
+            h("article", { class: "more-column" }, [
+              h("h3", [h("span", "02"), "友链"]),
+              ...friendLinks.map((link) => compactLink(link.label, link.detail, link.href)),
+            ]),
+            h("article", { class: "more-column" }, [
+              h("h3", [h("span", "03"), "其他"]),
+              ...otherLinks.map((link) => compactLink(link.label, link.detail, link.href)),
+            ]),
           ]),
           h("footer", [
             h("span", "© 2026 FLASH"),
@@ -372,7 +407,7 @@ const PortfolioApp = defineComponent({
           ]),
         ]),
       ]),
-      h("div", { class: "panel-dots", "aria-label": "页面导航" }, ["首页", "项目", "技术栈", "联系", "友链"].map((label, index) =>
+      h("div", { class: "panel-dots", "aria-label": "页面导航" }, ["首页", "项目", "技术栈", "联系", "更多"].map((label, index) =>
         h("button", { class: { active: activePanel.value === index }, onClick: () => goTo(index), "aria-label": `前往${label}`, "aria-current": activePanel.value === index ? "page" : undefined }, `0${index + 1}`),
       )),
     ]);

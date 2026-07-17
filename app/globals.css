@@ -158,10 +158,21 @@ footer a:hover { color: var(--lime); }
 .friends-heading { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 8vw; margin: 24px 0 38px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
 .friends-heading h2 { margin: 0; font-size: clamp(52px, 7vw, 104px); line-height: .9; letter-spacing: -.06em; }
 .friends-heading p { max-width: 360px; margin: 0 0 8px; color: var(--muted); font: 550 11px/1.7 var(--font-geist-mono); letter-spacing: .07em; }
-.friend-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: min(1100px, 100%); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
-.friend-link { min-height: 150px; display: flex; align-items: flex-end; justify-content: space-between; padding: 24px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: rgba(6, 10, 25, .3); font-size: clamp(18px, 2vw, 28px); font-weight: 560; transition: color 220ms ease, background 220ms ease, transform 220ms ease; }
-.friend-link:hover { z-index: 2; color: #07100a; background: #ffc857; transform: translateY(-5px); }
-.friend-exchange { color: var(--lime); }
+.more-grid { display: grid; grid-template-columns: 1.25fr 1fr 1fr; width: min(1180px, 100%); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.more-column { min-width: 0; border-right: 1px solid var(--line); background: rgba(6, 10, 25, .3); }
+.more-column h3 { display: flex; gap: 12px; align-items: center; min-height: 52px; margin: 0; padding: 0 18px; border-bottom: 1px solid var(--line); font: 650 11px/1 var(--font-geist-mono); letter-spacing: .12em; }
+.more-column h3 span { color: var(--lime); font-size: 8px; }
+.updates-list { display: grid; }
+.update-item, .compact-link { min-height: 78px; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+.update-item { display: grid; grid-template-columns: 76px 1fr; align-items: center; gap: 12px; }
+.update-item time { color: #ffc857; font: 600 8px/1.3 var(--font-geist-mono); letter-spacing: .08em; }
+.update-item span, .compact-link > span { display: grid; gap: 7px; }
+.update-item b, .compact-link b { font-size: 14px; font-weight: 600; }
+.update-item small, .compact-link small { color: var(--muted); font-size: 10px; line-height: 1.45; }
+.compact-link { display: flex; align-items: center; justify-content: space-between; gap: 18px; transition: color 220ms ease, background 220ms ease; }
+.compact-link i { color: var(--lime); font-style: normal; font-size: 16px; }
+.compact-link:hover { color: #07100a; background: #ffc857; }
+.compact-link:hover small, .compact-link:hover i { color: #07100a; }
 
 .panel-dots { position: fixed; z-index: 20; top: 50%; right: 22px; display: flex; flex-direction: column; gap: 13px; transform: translateY(-50%); }
 .panel-dots button { position: relative; width: 38px; height: 38px; padding: 0; border: 1px solid transparent; border-radius: 50%; color: #596378; background: rgba(5,8,20,.34); font: 600 8px/1 var(--font-geist-mono); cursor: pointer; transition: color 220ms ease, border-color 220ms ease, background 220ms ease, transform 220ms ease; }
@@ -183,7 +194,8 @@ footer a:hover { color: var(--lime); }
   .project-card.featured { grid-column: span 1; }
   .contact-actions { grid-template-columns: 1fr; }
   .friends-heading { grid-template-columns: 1fr; gap: 16px; }
-  .friend-grid { grid-template-columns: 1fr; }
+  .more-grid { grid-template-columns: 1fr; }
+  .more-column { border-bottom: 1px solid var(--line); }
   .principles { grid-template-columns: 1fr; }
   .principles article { border-right: 0; border-bottom: 1px solid var(--line); }
   .principles article:last-child { border-bottom: 0; }
@@ -232,7 +244,11 @@ footer a:hover { color: var(--lime); }
   .contact-actions { margin-top: 26px; }
   .contact-actions .button { min-height: 64px; padding: 0 16px; }
   .friends-heading { margin: 16px 0 20px; padding-bottom: 14px; }
-  .friend-link { min-height: 82px; padding: 16px; font-size: 17px; }
+  .more-grid { grid-template-columns: 1fr; }
+  .more-column h3 { min-height: 38px; }
+  .update-item, .compact-link { min-height: 58px; padding: 10px 14px; }
+  .update-item { grid-template-columns: 62px 1fr; }
+  .update-item small, .compact-link small { display: none; }
   footer { left: 16px; right: 16px; bottom: 52px; gap: 6px; flex-direction: column; padding-top: 10px; font-size: 7px; }
   .panel-dots { top: auto; right: auto; bottom: 10px; left: 50%; flex-direction: row; gap: 5px; transform: translateX(-50%); }
   .panel-dots button { width: 34px; height: 34px; background: rgba(5,8,20,.76); }

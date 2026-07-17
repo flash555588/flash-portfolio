@@ -52,7 +52,7 @@ const latestUpdates = [
 const otherLinks = [
   { label: "全部仓库", detail: "浏览公开项目", href: "https://github.com/flash555588?tab=repositories" },
   { label: "申请友链", detail: "编辑数据并提交 PR", href: "https://github.com/flash555588/flash-portfolio/edit/master/content/friends.json" },
-  { label: "GitHub Pages", detail: "访问自动部署版本", href: "https://flash555588.github.io/flash-portfolio/" },
+  { label: "GitHub Pages", detail: "访问自动部署版本", href: "https://lolihost.cn/" },
 ];
 
 function externalLink(label: string, href: string, className?: string) {

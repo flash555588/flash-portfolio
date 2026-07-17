@@ -1,4 +1,16 @@
-# vinext-starter
+# Flash Portfolio
+
+Flash 的 AI × 3D 个人作品集。仓库通过 GitHub Actions 自动校验、构建并部署到 GitHub Pages。
+
+## 申请友链
+
+1. Fork 本仓库并编辑 `content/friends.json`。
+2. 在数组末尾添加 `name`、`description` 和 HTTPS `url`，不要修改页面代码。
+3. 提交 Pull Request。自动检查通过并合并后，友链页面会自动同步更新。
+
+本地可运行 `npm run validate:friends` 检查数据格式，运行 `npm run build:pages` 构建 GitHub Pages 静态文件。
+
+## 开发
 
 A clean full-stack starter running on
 [vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and

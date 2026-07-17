@@ -39,23 +39,27 @@ test("server-renders the portfolio shell and metadata", async () => {
 });
 
 test("keeps the portfolio sections and static links in source", async () => {
-  const [css, page, layout, portfolio, packageJson] = await Promise.all([
+  const [css, page, layout, portfolio, packageJson, friends] = await Promise.all([
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/vue-portfolio.tsx", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
+    readFile(new URL("../content/friends.json", import.meta.url), "utf8"),
   ]);
 
   assert.match(portfolio, /const latestUpdates = \[/);
   assert.match(portfolio, /友链、更新与其他。/);
   assert.match(portfolio, /\["首页", "项目", "技术栈", "联系", "更多"\]/);
-  assert.match(portfolio, /flash-portfolio\/issues/);
+  assert.match(portfolio, /from "\.\.\/content\/friends\.json"/);
+  assert.match(portfolio, /flash-portfolio\/edit\/master\/content\/friends\.json/);
   assert.match(css, /\.more-grid/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.match(page, /export const metadata:\s*Metadata/);
   assert.match(page, /<VuePortfolio \/>/);
   assert.match(layout, /Flash — AI × 3D Developer/);
+  assert.ok(Array.isArray(JSON.parse(friends)));
+  assert.match(packageJson, /"build:pages"/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
 
   await assert.rejects(

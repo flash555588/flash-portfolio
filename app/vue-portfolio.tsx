@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { createApp, defineComponent, h, onBeforeUnmount, onMounted, ref } from "vue";
 import * as THREE from "three";
+import friendLinks from "../content/friends.json";
 
 const projects = [
   {
@@ -48,14 +49,10 @@ const latestUpdates = [
   { date: "持续更新", title: "开源项目", detail: "新想法和进度会优先发布到 GitHub。" },
 ];
 
-const friendLinks = [
-  { label: "LOLIHOST", detail: "个人主页与技术随笔", href: "https://www.lolihost.com/" },
-  { label: "FLASH / GITHUB", detail: "代码、实验与开源项目", href: "https://github.com/flash555588" },
-];
-
 const otherLinks = [
   { label: "全部仓库", detail: "浏览公开项目", href: "https://github.com/flash555588?tab=repositories" },
-  { label: "交换友链", detail: "通过 GitHub 联系我", href: "https://github.com/flash555588/flash-portfolio/issues" },
+  { label: "申请友链", detail: "编辑数据并提交 PR", href: "https://github.com/flash555588/flash-portfolio/edit/master/content/friends.json" },
+  { label: "GitHub Pages", detail: "访问自动部署版本", href: "https://flash555588.github.io/flash-portfolio/" },
 ];
 
 function externalLink(label: string, href: string, className?: string) {
@@ -69,7 +66,7 @@ function compactLink(label: string, detail: string, href: string) {
   ]);
 }
 
-const PortfolioApp = defineComponent({
+export const PortfolioApp = defineComponent({
   name: "FlashPortfolio",
   setup() {
     const canvas = ref<HTMLCanvasElement | null>(null);
@@ -392,7 +389,7 @@ const PortfolioApp = defineComponent({
             ]),
             h("article", { class: "more-column" }, [
               h("h3", [h("span", "02"), "友链"]),
-              ...friendLinks.map((link) => compactLink(link.label, link.detail, link.href)),
+              ...friendLinks.map((link) => compactLink(link.name, link.description, link.url)),
             ]),
             h("article", { class: "more-column" }, [
               h("h3", [h("span", "03"), "其他"]),

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const title = "Flash — AI × 3D Developer | Lolihost";
-const description = "Flash 的个人作品集：探索 AI、3D、工程自动化与开源实验，记录从创意原型到可用工具的实践。";
+const title = "Flash 的小站 | Lolihost";
+const description = "记录项目、灵感和折腾过程。这里有代码、AI、3D，也有一些正在慢慢成形的想法。";
 
 export async function generateMetadata(): Promise<Metadata> {
   const incoming = await headers();

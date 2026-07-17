@@ -32,8 +32,8 @@ test("server-renders the portfolio shell and metadata", async () => {
 
   const html = await response.text();
   assert.match(html, /<html lang="zh-CN">/i);
-  assert.match(html, /<title>Flash — AI × 3D Developer \| Lolihost<\/title>/i);
-  assert.match(html, /Flash 的个人作品集：探索 AI、3D、工程自动化与开源实验/);
+  assert.match(html, /<title>Flash 的小站 \| Lolihost<\/title>/i);
+  assert.match(html, /记录项目、灵感和折腾过程/);
   assert.match(html, /class="vue-root"/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/i);
 });
@@ -57,9 +57,9 @@ test("keeps the portfolio sections and static links in source", async () => {
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.match(page, /export const metadata:\s*Metadata/);
   assert.match(page, /<VuePortfolio \/>/);
-  assert.match(layout, /Flash — AI × 3D Developer/);
+  assert.match(layout, /Flash 的小站/);
   assert.match(layout, /\/favicon\.svg/);
-  assert.match(portfolio, /这里记录 AI、3D、工程自动化与开源实验/);
+  assert.match(portfolio, /这里记录项目、灵感和折腾过程/);
   assert.ok(Array.isArray(JSON.parse(friends)));
   assert.match(packageJson, /"build:pages"/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);

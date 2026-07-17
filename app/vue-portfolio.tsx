@@ -338,7 +338,7 @@ export const PortfolioApp = defineComponent({
           h("div", { class: "hero-copy" }, [
             h("p", { class: "eyebrow" }, [h("span", { class: "status-dot" }), "WELCOME · LOLIHOST"]),
             h("h1", ["欢迎来到", h("br"), h("span", "我的小站"), h("br"), "随便看看。"]),
-            h("p", { class: "hero-lead" }, "我是 Flash。这里记录 AI、3D、工程自动化与开源实验，也分享把想法做成可用工具的过程。"),
+            h("p", { class: "hero-lead" }, "我是 Flash。这里记录项目、灵感和折腾过程，也收留一些还没成形的想法。"),
             h("div", { class: "hero-actions" }, [h("a", { href: "#work", class: "button button-primary", onClick: (event: Event) => { event.preventDefault(); goTo(1); } }, "开始浏览 →"), externalLink("GitHub", "https://github.com/flash555588", "button button-ghost")]),
           ]),
           h("div", { class: "scroll-mark", "aria-hidden": "true" }, [h("span", "SCROLL / SWIPE TO EXPLORE"), h("i"), h("b", "→")]),

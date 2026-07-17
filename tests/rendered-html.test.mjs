@@ -57,6 +57,8 @@ test("keeps the portfolio sections and static links in source", async () => {
   assert.match(portfolio, /flash-portfolio\/edit\/master\/content\/friends\.json/);
   assert.match(css, /\.notes-layout/);
   assert.match(css, /\.friend-grid/);
+  assert.match(css, /max-height:\s*700px/);
+  assert.match(css, /max-width:\s*680px/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.match(page, /export const metadata:\s*Metadata/);
   assert.match(page, /<VuePortfolio \/>/);

@@ -8,7 +8,7 @@ const projects = [
   {
     index: "01",
     title: "AI Model Workbench",
-    description: "为 Obsidian 打造的桌面级 3D 模型工作台，支持 GLB、GLTF、STL、OBJ 与 SPLAT 等多种格式。",
+    description: "Obsidian 中的 3D 模型工作台。",
     tags: ["TypeScript", "Babylon.js", "Obsidian"],
     href: "https://github.com/flash555588/ai-model-workbench",
     metric: "11 STARS",
@@ -17,7 +17,7 @@ const projects = [
   {
     index: "02",
     title: "AI Probe Router",
-    description: "将 AI 引入 KiCad 探针与测试接口设计，让电子工程流程更自动、更清晰。",
+    description: "AI 辅助的 KiCad 探针布线工具。",
     tags: ["Python", "AI Tools", "KiCad"],
     href: "https://github.com/flash555588/ai-probe-router",
     metric: "ENGINEERING",
@@ -25,7 +25,7 @@ const projects = [
   {
     index: "03",
     title: "CSP Coach",
-    description: "以 Vue 构建的绘画教练层原型，探索创作辅助工具与自然交互。",
+    description: "面向绘画创作的辅助工具原型。",
     tags: ["Vue", "Creative Tool", "Prototype"],
     href: "https://github.com/flash555588/csp-coach",
     metric: "EXPERIMENT",
@@ -33,7 +33,7 @@ const projects = [
   {
     index: "04",
     title: "Office Suite",
-    description: "面向日常生产力场景的 Python 工具集合，让重复工作交给代码。",
+    description: "用 Python 自动化日常工作。",
     tags: ["Python", "Automation", "Productivity"],
     href: "https://github.com/flash555588/Office-Suite",
     metric: "5 STARS · 2 FORKS",
@@ -50,17 +50,61 @@ const PortfolioApp = defineComponent({
   name: "FlashPortfolio",
   setup() {
     const canvas = ref<HTMLCanvasElement | null>(null);
+    const track = ref<HTMLElement | null>(null);
     const scrollProgress = ref(0);
+    const activePanel = ref(0);
     let renderer: THREE.WebGLRenderer | undefined;
     let frame = 0;
     let cleanupScene = () => {};
 
+    const goTo = (index: number) => {
+      const scroller = track.value;
+      const target = scroller?.children.item(index) as HTMLElement | null;
+      if (!scroller || !target) return;
+      scroller.scrollTo({ left: target.offsetLeft, behavior: "smooth" });
+      window.history.replaceState(null, "", index === 0 ? "#top" : `#${target.id}`);
+    };
+
     onMounted(() => {
+      const scroller = track.value;
       const onScroll = () => {
-        const total = document.documentElement.scrollHeight - window.innerHeight;
-        scrollProgress.value = total > 0 ? window.scrollY / total : 0;
+        if (!scroller) return;
+        const total = scroller.scrollWidth - scroller.clientWidth;
+        scrollProgress.value = total > 0 ? scroller.scrollLeft / total : 0;
+        activePanel.value = Math.round(scroller.scrollLeft / Math.max(scroller.clientWidth, 1));
       };
-      window.addEventListener("scroll", onScroll, { passive: true });
+      const onWheel = (event: WheelEvent) => {
+        if (!scroller || event.ctrlKey || window.innerWidth <= 900) return;
+        const amount = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+        if (Math.abs(amount) < 8) return;
+        event.preventDefault();
+        if (wheelLocked) return;
+        wheelLocked = true;
+        goTo(Math.max(0, Math.min(4, activePanel.value + (amount > 0 ? 1 : -1))));
+        wheelUnlock = window.setTimeout(() => { wheelLocked = false; }, 880);
+      };
+      let wheelLocked = false;
+      let wheelUnlock = 0;
+      const onKeydown = (event: KeyboardEvent) => {
+        const element = event.target as HTMLElement;
+        if (element.closest("a, button, input, textarea, select")) return;
+        if (["ArrowRight", "PageDown", " "].includes(event.key)) {
+          event.preventDefault();
+          goTo(Math.min(activePanel.value + 1, 4));
+        } else if (["ArrowLeft", "PageUp"].includes(event.key)) {
+          event.preventDefault();
+          goTo(Math.max(activePanel.value - 1, 0));
+        } else if (event.key === "Home") {
+          event.preventDefault();
+          goTo(0);
+        } else if (event.key === "End") {
+          event.preventDefault();
+          goTo(4);
+        }
+      };
+      scroller?.addEventListener("scroll", onScroll, { passive: true });
+      scroller?.addEventListener("wheel", onWheel, { passive: false });
+      scroller?.addEventListener("keydown", onKeydown);
       onScroll();
 
       const target = canvas.value;
@@ -72,6 +116,8 @@ const PortfolioApp = defineComponent({
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
         renderer.setSize(window.innerWidth, window.innerHeight, false);
         renderer.outputColorSpace = THREE.SRGBColorSpace;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.12;
 
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(0x050814, 0.055);
@@ -83,14 +129,50 @@ const PortfolioApp = defineComponent({
         scene.add(group);
 
         const coreGeometry = new THREE.IcosahedronGeometry(2.15, 3);
-        const coreMaterial = new THREE.MeshStandardMaterial({ color: 0x795cff, emissive: 0x211049, roughness: 0.34, metalness: 0.5, flatShading: true, transparent: true, opacity: 0.7 });
+        const coreMaterial = new THREE.MeshPhysicalMaterial({
+          color: 0x795cff,
+          emissive: 0x211049,
+          emissiveIntensity: 0.8,
+          roughness: 0.18,
+          metalness: 0.42,
+          flatShading: true,
+          transparent: true,
+          opacity: 0.76,
+          clearcoat: 1,
+          clearcoatRoughness: 0.07,
+          sheen: 0.35,
+          sheenColor: new THREE.Color(0x9fb5ff),
+          iridescence: 0.22,
+          iridescenceIOR: 1.45,
+        });
         const core = new THREE.Mesh(coreGeometry, coreMaterial);
         group.add(core);
+
+        const innerGeometry = new THREE.IcosahedronGeometry(1.64, 2);
+        const innerMaterial = new THREE.MeshPhysicalMaterial({ color: 0x5035ff, emissive: 0x1b1054, emissiveIntensity: 1.25, roughness: 0.12, metalness: 0.16, transparent: true, opacity: 0.46, clearcoat: 1, clearcoatRoughness: 0.05 });
+        const innerCore = new THREE.Mesh(innerGeometry, innerMaterial);
+        group.add(innerCore);
+
+        const glossGeometry = new THREE.IcosahedronGeometry(2.19, 3);
+        const glossMaterial = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.02, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.02, transparent: true, opacity: 0.09, depthWrite: false, blending: THREE.AdditiveBlending });
+        const glossShell = new THREE.Mesh(glossGeometry, glossMaterial);
+        group.add(glossShell);
+
+        const haloGeometry = new THREE.SphereGeometry(2.52, 32, 32);
+        const haloMaterial = new THREE.MeshBasicMaterial({ color: 0x795cff, transparent: true, opacity: 0.055, side: THREE.BackSide, depthWrite: false, blending: THREE.AdditiveBlending });
+        const halo = new THREE.Mesh(haloGeometry, haloMaterial);
+        group.add(halo);
 
         const wireGeometry = new THREE.IcosahedronGeometry(2.28, 2);
         const wireMaterial = new THREE.MeshBasicMaterial({ color: 0xb8ff57, wireframe: true, transparent: true, opacity: 0.18 });
         const wire = new THREE.Mesh(wireGeometry, wireMaterial);
         group.add(wire);
+
+        const nodeGeometry = new THREE.BufferGeometry();
+        nodeGeometry.setAttribute("position", wireGeometry.getAttribute("position").clone());
+        const nodeMaterial = new THREE.PointsMaterial({ color: 0xd9ffae, size: 0.028, transparent: true, opacity: 0.52, sizeAttenuation: true, depthWrite: false });
+        const surfaceNodes = new THREE.Points(nodeGeometry, nodeMaterial);
+        wire.add(surfaceNodes);
 
         const particleCount = window.innerWidth < 700 ? 420 : 900;
         const positions = new Float32Array(particleCount * 3);
@@ -108,13 +190,20 @@ const PortfolioApp = defineComponent({
         const particles = new THREE.Points(particleGeometry, particleMaterial);
         scene.add(particles);
 
-        scene.add(new THREE.AmbientLight(0x8aa4ff, 1.8));
+        scene.add(new THREE.AmbientLight(0x8aa4ff, 1.15));
+        scene.add(new THREE.HemisphereLight(0xc8dcff, 0x160b32, 1.3));
         const keyLight = new THREE.PointLight(0xb8ff57, 32, 18);
         keyLight.position.set(4, 4, 6);
         scene.add(keyLight);
         const violetLight = new THREE.PointLight(0x6a4cff, 40, 20);
         violetLight.position.set(-4, -2, 4);
         scene.add(violetLight);
+        const glossLight = new THREE.PointLight(0xffffff, 24, 24);
+        glossLight.position.set(3.5, 5.5, 7);
+        scene.add(glossLight);
+        const rimLight = new THREE.PointLight(0x75ddff, 18, 20);
+        rimLight.position.set(-5, 1, -2);
+        scene.add(rimLight);
 
         const pointer = new THREE.Vector2();
         const onPointer = (event: PointerEvent) => {
@@ -125,20 +214,48 @@ const PortfolioApp = defineComponent({
           camera.aspect = window.innerWidth / window.innerHeight;
           camera.updateProjectionMatrix();
           renderer?.setSize(window.innerWidth, window.innerHeight, false);
-          group.position.x = window.innerWidth > 880 ? 2.8 : 0.9;
         };
         window.addEventListener("pointermove", onPointer, { passive: true });
         window.addEventListener("resize", onResize, { passive: true });
 
         const clock = new THREE.Clock();
+        const pageColors = [0x795cff, 0x367dff, 0xb8ff57, 0x75ddff, 0xffc857].map((color) => new THREE.Color(color));
+        const pageEmissives = [0x211049, 0x102d68, 0x183c12, 0x10364a, 0x4a2c08].map((color) => new THREE.Color(color));
+        const wireColors = [0xb8ff57, 0x75ddff, 0x8b71ff, 0xb8ff57, 0x75ddff].map((color) => new THREE.Color(color));
+        const pageTransforms = [
+          { x: 2.8, y: -0.3, z: 0, scale: 1, speedX: 0.11, speedY: 0.16 },
+          { x: -2.7, y: 0.45, z: -1.2, scale: 0.76, speedX: -0.08, speedY: 0.22 },
+          { x: 2.35, y: 0.9, z: 0.5, scale: 1.18, speedX: 0.18, speedY: -0.1 },
+          { x: -2.15, y: -0.55, z: -1.7, scale: 0.68, speedX: -0.14, speedY: -0.18 },
+          { x: 0.25, y: 0.1, z: 0.8, scale: 1.34, speedX: 0.07, speedY: 0.24 },
+        ];
         const draw = () => {
           const time = clock.getElapsedTime();
-          core.rotation.x = time * 0.11 + pointer.y * 0.22;
-          core.rotation.y = time * 0.16 + pointer.x * 0.32;
-          wire.rotation.x = -time * 0.07;
-          wire.rotation.y = time * 0.09;
-          particles.rotation.y = time * 0.008;
-          group.position.y = -0.3 - scrollProgress.value * 1.4;
+          const state = Math.max(0, Math.min(4, activePanel.value));
+          const page = pageTransforms[state];
+          const mobileOffset = window.innerWidth > 880 ? 0 : state % 2 === 0 ? -1.35 : 1.35;
+          core.rotation.x = time * page.speedX + pointer.y * 0.22;
+          core.rotation.y = time * page.speedY + pointer.x * 0.32;
+          innerCore.rotation.x = -time * page.speedY * 0.72 - pointer.y * 0.12;
+          innerCore.rotation.y = time * page.speedX * 0.9 - pointer.x * 0.16;
+          glossShell.rotation.copy(core.rotation);
+          glossShell.rotation.z = time * 0.025;
+          wire.rotation.x = -time * page.speedY * 0.55 + state * 0.45;
+          wire.rotation.y = time * page.speedX * 0.65 + state * 0.6;
+          particles.rotation.y = time * (0.008 + state * 0.003) + scrollProgress.value * 0.8;
+          group.position.x += ((window.innerWidth > 880 ? page.x : mobileOffset) - group.position.x) * 0.045;
+          group.position.y += (page.y - group.position.y) * 0.045;
+          group.position.z += (page.z - group.position.z) * 0.045;
+          const targetScale = window.innerWidth > 880 ? page.scale : page.scale * 0.58;
+          const nextScale = group.scale.x + (targetScale - group.scale.x) * 0.045;
+          group.scale.setScalar(nextScale);
+          coreMaterial.color.lerp(pageColors[state], 0.04);
+          coreMaterial.emissive.lerp(pageEmissives[state], 0.04);
+          innerMaterial.color.lerp(pageColors[state], 0.025);
+          innerMaterial.emissive.lerp(pageEmissives[state], 0.035);
+          haloMaterial.color.lerp(pageColors[state], 0.035);
+          wireMaterial.color.lerp(wireColors[state], 0.04);
+          nodeMaterial.color.lerp(wireColors[state], 0.04);
           camera.position.x += (pointer.x * 0.5 - camera.position.x) * 0.025;
           camera.position.y += (-pointer.y * 0.35 - camera.position.y) * 0.025;
           renderer?.render(scene, camera);
@@ -152,8 +269,16 @@ const PortfolioApp = defineComponent({
           window.cancelAnimationFrame(frame);
           coreGeometry.dispose();
           coreMaterial.dispose();
+          innerGeometry.dispose();
+          innerMaterial.dispose();
+          glossGeometry.dispose();
+          glossMaterial.dispose();
+          haloGeometry.dispose();
+          haloMaterial.dispose();
           wireGeometry.dispose();
           wireMaterial.dispose();
+          nodeGeometry.dispose();
+          nodeMaterial.dispose();
           particleGeometry.dispose();
           particleMaterial.dispose();
           renderer?.dispose();
@@ -163,54 +288,43 @@ const PortfolioApp = defineComponent({
       }
 
       cleanupScene = ((sceneCleanup) => () => {
-        window.removeEventListener("scroll", onScroll);
+        scroller?.removeEventListener("scroll", onScroll);
+        scroller?.removeEventListener("wheel", onWheel);
+        scroller?.removeEventListener("keydown", onKeydown);
+        window.clearTimeout(wheelUnlock);
         sceneCleanup();
       })(cleanupScene);
     });
 
     onBeforeUnmount(() => cleanupScene());
 
-    return () => h("div", { class: "portfolio-shell" }, [
+    return () => h("div", { class: ["portfolio-shell", `scene-${activePanel.value}`] }, [
       h("canvas", { ref: canvas, class: "three-canvas", "aria-hidden": "true" }),
+      ...[0, 1, 2, 3, 4].map((index) => h("div", { class: ["scene-wash", `scene-wash-${index}`, { active: activePanel.value === index }], "aria-hidden": "true" })),
       h("div", { class: "ambient-grid", "aria-hidden": "true" }),
-      h("div", { class: "page-progress", style: { transform: `scaleX(${scrollProgress.value})` }, "aria-hidden": "true" }),
-      h("header", { class: "site-nav" }, [
-        h("a", { class: "brand", href: "#top", "aria-label": "返回首页" }, [h("span", "F"), h("b", "FLASH / 0555")]),
-        h("nav", { "aria-label": "主导航" }, [h("a", { href: "#work" }, "项目"), h("a", { href: "#stack" }, "技术栈"), h("a", { href: "#about" }, "关于")]),
-        externalLink("GITHUB", "https://github.com/flash555588", "nav-cta"),
+      h("div", { class: "background-details", "aria-hidden": "true" }, [
+        h("span", { class: "detail-a" }, "SYS / LOLIHOST"),
+        h("span", { class: "detail-b" }, `VIEW / 0${activePanel.value + 1}`),
+        h("span", { class: "detail-c" }, "X 0555 · Y 2026"),
       ]),
-      h("main", { id: "top" }, [
-        h("section", { class: "hero section-pad" }, [
+      h("div", { class: "viewport-fades", "aria-hidden": "true" }, [
+        h("span", { class: "fade-left" }),
+        h("span", { class: "fade-right" }),
+        h("span", { class: "fade-bottom" }),
+      ]),
+      h("div", { class: "page-progress", style: { transform: `scaleX(${scrollProgress.value})` }, "aria-hidden": "true" }),
+      h("main", { id: "top", ref: track, class: "horizontal-track", tabindex: "0", "aria-label": "作品集，左右滑动浏览" }, [
+        h("section", { class: ["panel", "hero", "section-pad", { "is-active": activePanel.value === 0 }] }, [
           h("div", { class: "hero-copy" }, [
-            h("p", { class: "eyebrow" }, [h("span", { class: "status-dot" }), "FULL-STACK DEVELOPER · HEFEI"]),
-            h("h1", ["用代码连接", h("br"), h("span", "AI、3D"), h("br"), "与现实工程。"]),
-            h("p", { class: "hero-lead" }, "我是 Flash，一名来自合肥的全栈开发者与开源爱好者。喜欢把复杂技术打磨成真正可用的产品、插件与工程工具。"),
-            h("div", { class: "hero-actions" }, [h("a", { href: "#work", class: "button button-primary" }, "探索项目 ↓"), externalLink("查看 GitHub", "https://github.com/flash555588", "button button-ghost")]),
+            h("p", { class: "eyebrow" }, [h("span", { class: "status-dot" }), "WELCOME · LOLIHOST"]),
+            h("h1", ["欢迎来到", h("br"), h("span", "我的小站"), h("br"), "随便看看。"]),
+            h("p", { class: "hero-lead" }, "我是 Flash。这里放着一些项目、技术和正在尝试的东西。"),
+            h("div", { class: "hero-actions" }, [h("a", { href: "#work", class: "button button-primary", onClick: (event: Event) => { event.preventDefault(); goTo(1); } }, "开始浏览 →"), externalLink("GitHub", "https://github.com/flash555588", "button button-ghost")]),
           ]),
-          h("aside", { class: "signal-card", "aria-label": "开发者概览" }, [
-            h("div", { class: "signal-head" }, [h("span", "OPEN SOURCE SIGNAL"), h("span", "ONLINE")]),
-            h("div", { class: "signal-orbit", "aria-hidden": "true" }, [h("span"), h("i")]),
-            h("dl", [
-              h("div", [h("dt", "PUBLIC REPOS"), h("dd", "42")]),
-              h("div", [h("dt", "BUILDING SINCE"), h("dd", "2020")]),
-              h("div", [h("dt", "FOCUS"), h("dd", "AI × 3D")]),
-            ]),
-          ]),
-          h("div", { class: "scroll-mark", "aria-hidden": "true" }, [h("span", "SCROLL TO EXPLORE"), h("i")]),
+          h("div", { class: "scroll-mark", "aria-hidden": "true" }, [h("span", "SCROLL / SWIPE TO EXPLORE"), h("i"), h("b", "→")]),
         ]),
-        h("section", { id: "about", class: "about section-pad" }, [
-          h("p", { class: "section-index" }, "01 / ABOUT"),
-          h("div", { class: "about-grid" }, [
-            h("h2", ["不只写代码，", h("span", "也在设计人与技术相遇的方式。")]),
-            h("div", { class: "about-copy" }, [
-              h("p", "我的工作横跨 Web、桌面插件、AI 工具与工程自动化。技术只是媒介，真正重要的是把模糊需求变成清晰、稳定、让人愿意使用的体验。"),
-              h("p", "目前持续探索 AI 辅助创作、3D 可视化、CAD/电子工程工具，以及开源协作带来的可能性。"),
-              externalLink("访问个人网站", "https://lolihost.cn/", "text-link"),
-            ]),
-          ]),
-        ]),
-        h("section", { id: "work", class: "work section-pad" }, [
-          h("div", { class: "section-heading" }, [h("div", [h("p", { class: "section-index" }, "02 / SELECTED WORK"), h("h2", "把想法做成可运行的东西。")]), externalLink("全部 42 个公开仓库", "https://github.com/flash555588?tab=repositories", "text-link")]),
+        h("section", { id: "work", class: ["panel", "work", "section-pad", { "is-active": activePanel.value === 1 }] }, [
+          h("div", { class: "section-heading" }, [h("div", [h("p", { class: "section-index" }, "01 / WORK"), h("h2", "项目。")]), externalLink("全部仓库", "https://github.com/flash555588?tab=repositories", "text-link")]),
           h("div", { class: "project-grid" }, projects.map((project) => h("article", { class: ["project-card", project.featured && "featured"] }, [
             h("div", { class: "project-meta" }, [h("span", project.index), h("span", project.metric)]),
             h("div", { class: "project-body" }, [h("h3", project.title), h("p", project.description)]),
@@ -218,26 +332,49 @@ const PortfolioApp = defineComponent({
             externalLink("OPEN REPOSITORY", project.href, "project-link"),
           ]))),
         ]),
-        h("section", { id: "stack", class: "stack section-pad" }, [
-          h("p", { class: "section-index" }, "03 / TOOLKIT"),
+        h("section", { id: "stack", class: ["panel", "stack", "section-pad", { "is-active": activePanel.value === 2 }] }, [
+          h("p", { class: "section-index" }, "02 / STACK"),
           h("div", { class: "stack-grid" }, [
-            h("h2", "在合适的问题里，选择合适的技术。"),
-            h("p", "从界面到服务，从脚本到 3D 场景，我更在意技术如何协同，而不是单一框架的边界。"),
+            h("h2", "技术栈。"),
+            h("p", "根据问题选择工具。"),
           ]),
-          h("div", { class: "stack-cloud" }, stack.map((item, index) => h("span", { style: { "--delay": `${index * 60}ms` } }, item))),
+          h("div", { class: "stack-cloud" }, stack.map((item, index) => h("span", { style: { "--delay": `${index * 45}ms` } }, [
+            h("i", String(index + 1).padStart(2, "0")),
+            h("b", item),
+          ]))),
           h("div", { class: "principles" }, [
-            h("article", [h("span", "A"), h("h3", "BUILD WITH INTENT"), h("p", "每个交互、每行代码，都应该服务于一个明确目标。")]),
-            h("article", [h("span", "B"), h("h3", "OPEN BY DEFAULT"), h("p", "相信开放协作，也持续把实践沉淀成可复用的工具。")]),
-            h("article", [h("span", "C"), h("h3", "SHIP THE FUTURE"), h("p", "快速验证大胆想法，再把原型打磨成可靠产品。")]),
+            h("article", [h("span", "A"), h("h3", "CLEAR"), h("p", "目标明确。")]),
+            h("article", [h("span", "B"), h("h3", "OPEN"), h("p", "开放协作。")]),
+            h("article", [h("span", "C"), h("h3", "SHIP"), h("p", "快速交付。")]),
           ]),
         ]),
-        h("section", { class: "contact section-pad" }, [
-          h("p", { class: "section-index" }, "04 / NEXT SIGNAL"),
-          h("h2", ["有一个值得实现的想法？", h("br"), h("span", "让我们从第一行代码开始。")]),
-          h("div", { class: "contact-actions" }, [externalLink("GITHUB / FLASH555588", "https://github.com/flash555588", "button button-primary"), externalLink("LOLIHOST.CN", "https://lolihost.cn/", "button button-ghost")]),
+        h("section", { id: "contact", class: ["panel", "contact", "section-pad", { "is-active": activePanel.value === 3 }] }, [
+          h("p", { class: "section-index" }, "03 / CONTACT"),
+          h("h2", ["有想法？", h("br"), h("span", "一起做出来。")]),
+          h("div", { class: "contact-actions" }, [externalLink("GITHUB / FLASH555588", "https://github.com/flash555588", "button button-primary"), externalLink("WWW.LOLIHOST.COM", "https://www.lolihost.com/", "button button-ghost")]),
+        ]),
+        h("section", { id: "friends", class: ["panel", "friends", "section-pad", { "is-active": activePanel.value === 4 }] }, [
+          h("p", { class: "section-index" }, "04 / FRIEND LINKS"),
+          h("div", { class: "friends-heading" }, [
+            h("h2", "友链。"),
+            h("p", "保持连接，交换有趣的站点。"),
+          ]),
+          h("div", { class: "friend-grid" }, [
+            externalLink("LOLIHOST", "https://www.lolihost.com/", "friend-link"),
+            externalLink("FLASH / GITHUB", "https://github.com/flash555588", "friend-link"),
+            externalLink("交换友链", "https://github.com/flash555588", "friend-link friend-exchange"),
+          ]),
+          h("footer", [
+            h("span", "© 2026 FLASH"),
+            h("span", "BUILT WITH VUE × THREE.JS"),
+            h("a", { href: "https://beian.miit.gov.cn/", target: "_blank", rel: "noreferrer" }, "皖ICP备2025095537号-1"),
+            h("span", "WWW.LOLIHOST.COM"),
+          ]),
         ]),
       ]),
-      h("footer", [h("span", "© 2026 FLASH"), h("span", "BUILT WITH VUE × THREE.JS"), h("span", "HEFEI · CHINA")]),
+      h("div", { class: "panel-dots", "aria-label": "页面导航" }, ["首页", "项目", "技术栈", "联系", "友链"].map((label, index) =>
+        h("button", { class: { active: activePanel.value === index }, onClick: () => goTo(index), "aria-label": `前往${label}`, "aria-current": activePanel.value === index ? "page" : undefined }, `0${index + 1}`),
+      )),
     ]);
   },
 });

@@ -101,7 +101,7 @@ export const PortfolioApp = defineComponent({
         event.preventDefault();
         if (wheelLocked) return;
         wheelLocked = true;
-        goTo(Math.max(0, Math.min(5, activePanel.value + (amount > 0 ? 1 : -1))));
+        goTo(Math.max(0, Math.min(4, activePanel.value + (amount > 0 ? 1 : -1))));
         wheelUnlock = window.setTimeout(() => { wheelLocked = false; }, 880);
       };
       let wheelLocked = false;
@@ -111,7 +111,7 @@ export const PortfolioApp = defineComponent({
         if (element.closest("a, button, input, textarea, select")) return;
         if (["ArrowRight", "PageDown", " "].includes(event.key)) {
           event.preventDefault();
-          goTo(Math.min(activePanel.value + 1, 5));
+          goTo(Math.min(activePanel.value + 1, 4));
         } else if (["ArrowLeft", "PageUp"].includes(event.key)) {
           event.preventDefault();
           goTo(Math.max(activePanel.value - 1, 0));
@@ -120,7 +120,7 @@ export const PortfolioApp = defineComponent({
           goTo(0);
         } else if (event.key === "End") {
           event.preventDefault();
-          goTo(5);
+          goTo(4);
         }
       };
       scroller?.addEventListener("scroll", onScroll, { passive: true });
@@ -240,20 +240,19 @@ export const PortfolioApp = defineComponent({
         window.addEventListener("resize", onResize, { passive: true });
 
         const clock = new THREE.Clock();
-        const pageColors = [0x795cff, 0x367dff, 0xb8ff57, 0x75ddff, 0xffc857, 0x8b71ff].map((color) => new THREE.Color(color));
-        const pageEmissives = [0x211049, 0x102d68, 0x183c12, 0x10364a, 0x4a2c08, 0x24134f].map((color) => new THREE.Color(color));
-        const wireColors = [0xb8ff57, 0x75ddff, 0x8b71ff, 0xb8ff57, 0x75ddff, 0xffc857].map((color) => new THREE.Color(color));
+        const pageColors = [0x795cff, 0x367dff, 0x75ddff, 0xffc857, 0x8b71ff].map((color) => new THREE.Color(color));
+        const pageEmissives = [0x211049, 0x102d68, 0x10364a, 0x4a2c08, 0x24134f].map((color) => new THREE.Color(color));
+        const wireColors = [0xb8ff57, 0x75ddff, 0xb8ff57, 0x75ddff, 0xffc857].map((color) => new THREE.Color(color));
         const pageTransforms = [
           { x: 2.8, y: -0.3, z: 0, scale: 1, speedX: 0.11, speedY: 0.16 },
           { x: -2.7, y: 0.45, z: -1.2, scale: 0.76, speedX: -0.08, speedY: 0.22 },
-          { x: 2.35, y: 0.9, z: 0.5, scale: 1.18, speedX: 0.18, speedY: -0.1 },
           { x: -2.15, y: -0.55, z: -1.7, scale: 0.68, speedX: -0.14, speedY: -0.18 },
           { x: 0.25, y: 0.1, z: 0.8, scale: 1.34, speedX: 0.07, speedY: 0.24 },
           { x: 2.45, y: 0.45, z: -0.4, scale: 0.9, speedX: -0.1, speedY: 0.18 },
         ];
         const draw = () => {
           const time = clock.getElapsedTime();
-          const state = Math.max(0, Math.min(5, activePanel.value));
+          const state = Math.max(0, Math.min(4, activePanel.value));
           const page = pageTransforms[state];
           const mobileOffset = window.innerWidth > 880 ? 0 : state % 2 === 0 ? -1.35 : 1.35;
           core.rotation.x = time * page.speedX + pointer.y * 0.22;
@@ -322,7 +321,7 @@ export const PortfolioApp = defineComponent({
 
     return () => h("div", { class: ["portfolio-shell", `scene-${activePanel.value}`] }, [
       h("canvas", { ref: canvas, class: "three-canvas", "aria-hidden": "true" }),
-      ...[0, 1, 2, 3, 4, 5].map((index) => h("div", { class: ["scene-wash", `scene-wash-${index}`, { active: activePanel.value === index }], "aria-hidden": "true" })),
+      ...[0, 1, 2, 3, 4].map((index) => h("div", { class: ["scene-wash", `scene-wash-${index}`, { active: activePanel.value === index }], "aria-hidden": "true" })),
       h("div", { class: "ambient-grid", "aria-hidden": "true" }),
       h("div", { class: "background-details", "aria-hidden": "true" }, [
         h("span", { class: "detail-a" }, "SYS / LOLIHOST"),
@@ -346,37 +345,35 @@ export const PortfolioApp = defineComponent({
           h("div", { class: "scroll-mark", "aria-hidden": "true" }, [h("span", "SCROLL / SWIPE TO EXPLORE"), h("i"), h("b", "→")]),
         ]),
         h("section", { id: "work", class: ["panel", "work", "section-pad", { "is-active": activePanel.value === 1 }] }, [
-          h("div", { class: "section-heading" }, [h("div", [h("p", { class: "section-index" }, "01 / WORK"), h("h2", "项目。")]), externalLink("全部仓库", "https://github.com/flash555588?tab=repositories", "text-link")]),
-          h("div", { class: "project-grid" }, projects.map((project) => h("article", { class: ["project-card", project.featured && "featured"] }, [
-            h("div", { class: "project-meta" }, [h("span", project.index), h("span", project.metric)]),
-            h("div", { class: "project-body" }, [h("h3", project.title), h("p", project.description)]),
-            h("ul", { class: "tag-list", "aria-label": `${project.title} 技术标签` }, project.tags.map((tag) => h("li", tag))),
-            externalLink("OPEN REPOSITORY", project.href, "project-link"),
-          ]))),
-        ]),
-        h("section", { id: "stack", class: ["panel", "stack", "section-pad", { "is-active": activePanel.value === 2 }] }, [
-          h("p", { class: "section-index" }, "02 / STACK"),
-          h("div", { class: "stack-grid" }, [
-            h("h2", "技术栈。"),
-            h("p", "根据问题选择工具。"),
-          ]),
-          h("div", { class: "stack-cloud" }, stack.map((item, index) => h("span", { style: { "--delay": `${index * 45}ms` } }, [
-            h("i", String(index + 1).padStart(2, "0")),
-            h("b", item),
-          ]))),
-          h("div", { class: "principles" }, [
-            h("article", [h("span", "A"), h("h3", "CLEAR"), h("p", "目标明确。")]),
-            h("article", [h("span", "B"), h("h3", "OPEN"), h("p", "开放协作。")]),
-            h("article", [h("span", "C"), h("h3", "SHIP"), h("p", "快速交付。")]),
+          h("div", { class: "section-heading" }, [h("div", [h("p", { class: "section-index" }, "01 / WORK × STACK"), h("h2", "项目与技术栈。")]), externalLink("全部仓库", "https://github.com/flash555588?tab=repositories", "text-link")]),
+          h("div", { class: "work-stack-layout" }, [
+            h("div", { class: "project-grid" }, projects.map((project) => h("article", { class: ["project-card", project.featured && "featured"] }, [
+              h("div", { class: "project-meta" }, [h("span", project.index), h("span", project.metric)]),
+              h("div", { class: "project-body" }, [h("h3", project.title), h("p", project.description)]),
+              h("ul", { class: "tag-list", "aria-label": `${project.title} 技术标签` }, project.tags.map((tag) => h("li", tag))),
+              externalLink("OPEN REPOSITORY", project.href, "project-link"),
+            ]))),
+            h("aside", { class: "work-stack-side", "aria-label": "技术栈与开发原则" }, [
+              h("div", { class: "stack-grid" }, [h("h3", "技术栈。"), h("p", "根据问题选择工具。")]),
+              h("div", { class: "stack-cloud" }, stack.map((item, index) => h("span", { style: { "--delay": `${index * 45}ms` } }, [
+                h("i", String(index + 1).padStart(2, "0")),
+                h("b", item),
+              ]))),
+              h("div", { class: "principles" }, [
+                h("article", [h("span", "A"), h("h3", "CLEAR"), h("p", "目标明确。")]),
+                h("article", [h("span", "B"), h("h3", "OPEN"), h("p", "开放协作。")]),
+                h("article", [h("span", "C"), h("h3", "SHIP"), h("p", "快速交付。")]),
+              ]),
+            ]),
           ]),
         ]),
-        h("section", { id: "contact", class: ["panel", "contact", "section-pad", { "is-active": activePanel.value === 3 }] }, [
-          h("p", { class: "section-index" }, "03 / CONTACT"),
+        h("section", { id: "contact", class: ["panel", "contact", "section-pad", { "is-active": activePanel.value === 2 }] }, [
+          h("p", { class: "section-index" }, "02 / CONTACT"),
           h("h2", ["有想法？", h("br"), h("span", "一起做出来。")]),
           h("div", { class: "contact-actions" }, [externalLink("GITHUB / FLASH555588", "https://github.com/flash555588", "button button-primary"), externalLink("WWW.LOLIHOST.COM", "https://www.lolihost.com/", "button button-ghost")]),
         ]),
-        h("section", { id: "notes", class: ["panel", "notes", "section-pad", { "is-active": activePanel.value === 4 }] }, [
-          h("p", { class: "section-index" }, "04 / NOTES & MORE"),
+        h("section", { id: "notes", class: ["panel", "notes", "section-pad", { "is-active": activePanel.value === 3 }] }, [
+          h("p", { class: "section-index" }, "03 / NOTES & MORE"),
           h("div", { class: "friends-heading" }, [
             h("h2", "近期更新与其他。"),
             h("p", "用更轻量的方式整理近期变化和常用入口。"),
@@ -395,8 +392,8 @@ export const PortfolioApp = defineComponent({
             ]),
           ]),
         ]),
-        h("section", { id: "friends", class: ["panel", "friends", "section-pad", { "is-active": activePanel.value === 5 }] }, [
-          h("p", { class: "section-index" }, "05 / FRIENDS"),
+        h("section", { id: "friends", class: ["panel", "friends", "section-pad", { "is-active": activePanel.value === 4 }] }, [
+          h("p", { class: "section-index" }, "04 / FRIENDS"),
           h("div", { class: "friends-heading" }, [
             h("h2", "友链。"),
             h("p", "独立展示朋友们的网站，也欢迎通过 PR 加入。"),
@@ -411,7 +408,7 @@ export const PortfolioApp = defineComponent({
           ]),
         ]),
       ]),
-      h("div", { class: "panel-dots", "aria-label": "页面导航" }, ["首页", "项目", "技术栈", "联系", "更新与其他", "友链"].map((label, index) =>
+      h("div", { class: "panel-dots", "aria-label": "页面导航" }, ["首页", "项目与技术栈", "联系", "更新与其他", "友链"].map((label, index) =>
         h("button", { class: { active: activePanel.value === index }, onClick: () => goTo(index), "aria-label": `前往${label}`, "aria-current": activePanel.value === index ? "page" : undefined }, `0${index + 1}`),
       )),
     ]);

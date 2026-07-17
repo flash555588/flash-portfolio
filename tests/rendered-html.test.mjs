@@ -50,13 +50,16 @@ test("keeps the portfolio sections and static links in source", async () => {
 
   assert.match(portfolio, /const latestUpdates = \[/);
   assert.match(portfolio, /近期更新与其他。/);
+  assert.match(portfolio, /项目与技术栈。/);
   assert.match(portfolio, /id: "notes"/);
   assert.match(portfolio, /id: "friends"/);
-  assert.match(portfolio, /\["首页", "项目", "技术栈", "联系", "更新与其他", "友链"\]/);
+  assert.doesNotMatch(portfolio, /id: "stack"/);
+  assert.match(portfolio, /\["首页", "项目与技术栈", "联系", "更新与其他", "友链"\]/);
   assert.match(portfolio, /from "\.\.\/content\/friends\.json"/);
   assert.match(portfolio, /flash-portfolio\/edit\/master\/content\/friends\.json/);
   assert.match(css, /\.notes-layout/);
   assert.match(css, /\.friend-grid/);
+  assert.match(css, /\.work-stack-layout/);
   assert.match(css, /max-height:\s*700px/);
   assert.match(css, /max-width:\s*680px/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);

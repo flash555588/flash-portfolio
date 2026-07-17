@@ -14,20 +14,23 @@ const geistMono = Geist_Mono({
 });
 
 const title = "Flash — AI × 3D Developer | Lolihost";
-const description = "Flash 的个人作品集，专注 AI、3D 与开发工具。";
+const description = "Flash 的个人作品集：探索 AI、3D、工程自动化与开源实验，记录从创意原型到可用工具的实践。";
 
 export async function generateMetadata(): Promise<Metadata> {
   const incoming = await headers();
   const host = incoming.get("x-forwarded-host") ?? incoming.get("host");
   const protocol = incoming.get("x-forwarded-proto") ?? (host?.includes("localhost") ? "http" : "https");
-  const base = new URL(host ? `${protocol}://${host}` : "https://www.lolihost.com");
+  const base = new URL(host ? `${protocol}://${host}` : "https://lolihost.cn");
   return {
     metadataBase: base,
     title,
     description,
-    authors: [{ name: "Flash", url: "https://www.lolihost.com" }],
+    authors: [{ name: "Flash", url: "https://lolihost.cn" }],
     alternates: { canonical: "/" },
-    icons: { icon: "https://avatars.githubusercontent.com/u/65298061?v=4" },
+    icons: {
+      icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+      shortcut: "/favicon.svg",
+    },
     openGraph: {
       title,
       description,
